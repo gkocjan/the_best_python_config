@@ -4,6 +4,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class DBConfig(BaseSettings):
     host: str
+    database: str
+    username: str
+    password: str
 
 
 class Settings(BaseSettings):
@@ -32,3 +35,17 @@ def test_setting_DB_HOST_sets_database_host_of_db_config(monkeypatch):
     settings = Settings()
 
     assert settings.db.host == "not_local"
+
+
+def test_whole_db_config(monkeypatch):
+    monkeypatch.setenv("DB__HOST", "not_local")
+    monkeypatch.setenv("DB__DATABASE", "db")
+    monkeypatch.setenv("DB__USERNAME", "admin")
+    monkeypatch.setenv("DB__PASSWORD", "qwerty")
+
+    settings = Settings()
+
+    assert settings.db.host == "not_local"
+    assert settings.db.database == "db"
+    assert settings.db.username == "admin"
+    assert settings.db.password == "qwerty"
