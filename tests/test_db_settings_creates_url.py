@@ -1,8 +1,8 @@
-from the_best.settings import PostgresConfig, SQLiteConfig
+from the_best.settings import PostgresSettings, SQLiteSettings
 
 
-def test_posgresql_url_with_default_port():
-    pgsql_config = PostgresConfig(
+def test_postgresql_url_with_default_port():
+    pgsql_config = PostgresSettings(
         host="localhost",
         database="mydatabase",
         username="scott",
@@ -14,7 +14,7 @@ def test_posgresql_url_with_default_port():
 
 
 def test_sqlight_port():
-    pgsql_config = SQLiteConfig(path="foo.db")
+    pgsql_config = SQLiteSettings(path="foo.db")
     expected_url = "sqlite:///foo.db"
 
     assert pgsql_config.url == expected_url

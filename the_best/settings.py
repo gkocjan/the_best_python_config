@@ -9,7 +9,7 @@ class Disabled(BaseSettings):
     type: Literal["disabled"] = "disabled"
 
 
-class PostgresConfig(BaseSettings):
+class PostgresSettings(BaseSettings):
     type: Literal["postgres"] = "postgres"
     host: str
     database: str
@@ -21,7 +21,7 @@ class PostgresConfig(BaseSettings):
         return f"postgresql+psycopg2://{self.username}:{self.password}@{self.host}:5432/{self.database}"
 
 
-class SQLiteConfig(BaseSettings):
+class SQLiteSettings(BaseSettings):
     type: Literal["sqlite"] = "sqlite"
     path: Path
 
@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_nested_delimiter="__")
 
     debug: bool = False
-    db: PostgresConfig | SQLiteConfig | Disabled = Field(
+
+    db: PostgresSettings | SQLiteSettings | Disabled = Field(
         discriminator="type", default=Disabled()
     )
