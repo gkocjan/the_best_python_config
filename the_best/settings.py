@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -30,11 +30,12 @@ class SQLiteSettings(BaseSettings):
         return f"sqlite:///{self.path}"
 
 
+AnyDBSettings = PostgresSettings | SQLiteSettings | Disabled
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_nested_delimiter="__", env_file=".env")
 
     debug: bool = False
 
-    db: PostgresSettings | SQLiteSettings | Disabled = Field(
-        discriminator="type", default=Disabled()
-    )
+    db: Annotated[AnyDBSettings, Field(discriminator="type")] = Disabled()
