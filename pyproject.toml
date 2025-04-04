@@ -10,6 +10,8 @@ python = "^3.12"
 pytest = "^8.3.2"
 pydantic-settings = "^2.4.0"
 ruff = "^0.6.3"
+fastapi = "^0.115.12"
+httpx = "^0.28.1"
 
 
 [build-system]

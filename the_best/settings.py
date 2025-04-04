@@ -1,12 +1,21 @@
 from pathlib import Path
 from typing import Annotated, Literal
 
-from pydantic import Field
+from pydantic import AnyHttpUrl, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Disabled(BaseSettings):
     type: Literal["disabled"] = "disabled"
+
+
+class Static(BaseSettings):
+    type: Literal["static"] = "static"
+
+
+class APISettings(BaseSettings):
+    type: Literal["api"] = "api"
+    base_url: AnyHttpUrl
 
 
 class PostgresSettings(BaseSettings):
@@ -39,3 +48,7 @@ class Settings(BaseSettings):
     debug: bool = False
 
     db: Annotated[AnyDBSettings, Field(discriminator="type")] = Disabled()
+
+    star_wars_client: Annotated[APISettings | Static, Field(discriminator="type")] = (
+        Static()
+    )
