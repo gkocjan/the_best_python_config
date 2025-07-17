@@ -2,10 +2,11 @@ from abc import ABC, abstractmethod
 from functools import singledispatchmethod
 from typing import Annotated, Any
 
+import httpx
 from fastapi import Depends, FastAPI
 from pydantic import BaseModel
 
-from the_best.settings import Settings, Static
+from the_best.settings import APISettings, Settings, Static
 
 app = FastAPI()
 
@@ -29,11 +30,10 @@ class StarWarsClient(ABC):
     def _(settings: Static):
         return StaticStarWarsClient()
 
-    # Not implemented in real example ;)
-    # @get_client.register
-    # @staticmethod
-    # def _(settings: APISettings):
-    #     return APIStarWarsClient(settings)
+    @get_client.register
+    @staticmethod
+    def _(settings: APISettings):
+        return APIStarWarsClient(settings)
 
     @abstractmethod
     def get_starship(self, starship_id: int) -> Starship:
@@ -48,6 +48,24 @@ class StaticStarWarsClient(StarWarsClient):
             model="YT-1300 light freighter",
             manufacturer="Corellian Engineering Corporation",
             cost_in_credits=100000,
+        )
+
+
+class APIStarWarsClient(StarWarsClient):
+    def __init__(self, settings: APISettings):
+        self._base_url = settings.base_url
+
+    def get_starship(self, starship_id: int) -> Starship:
+        response = httpx.get(f"{self._base_url}api/starships/{starship_id}")
+        response.raise_for_status()
+
+        raw_data = response.json()["result"]
+        return Starship(
+            starship_id=starship_id,
+            name=raw_data["properties"]["name"],
+            model=raw_data["properties"]["model"],
+            manufacturer=raw_data["properties"]["manufacturer"],
+            cost_in_credits=int(raw_data["properties"]["cost_in_credits"]),
         )
 
 
