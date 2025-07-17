@@ -1,12 +1,29 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from the_best.api import app
+from the_best.api import app, settings
+from the_best.settings import Settings
 
 
 @pytest.fixture
-def client():
-    return TestClient(app)
+def test_settings() -> Settings:
+    class TestSettings(Settings):
+        debug: bool = True
+
+    return TestSettings()
+
+
+@pytest.fixture
+def client(test_settings: Settings):
+    def override_settings():
+        return test_settings
+
+    old_dependencies = app.dependency_overrides.copy()
+    app.dependency_overrides[settings] = override_settings
+
+    yield TestClient(app)
+
+    app.dependency_overrides = old_dependencies
 
 
 def test_starship_get_by_id(client):
